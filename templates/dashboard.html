@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NetGuard AI — Network Anomaly Monitor</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: radial-gradient(circle at 20% 0%, #1b1035 0%, #0a0a1a 55%, #050510 100%);
+    color: #e8e6ff;
+    font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    padding: 28px 34px;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 26px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #7b5cff, #35d0ff);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 16px; color: #0a0a1a;
+  }
+  .brand h1 { font-size: 19px; font-weight: 700; letter-spacing: .02em; }
+  .brand p { font-size: 12px; color: #9a94c9; margin-top: 2px; }
+
+  .live-pill {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(53, 208, 255, 0.08);
+    border: 1px solid rgba(53, 208, 255, 0.35);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    color: #35d0ff;
+  }
+  .live-pill .blip {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #35d0ff;
+    animation: blip 1.2s infinite;
+  }
+  @keyframes blip { 0%,100%{ box-shadow: 0 0 0 0 rgba(53,208,255,.6);} 50%{ box-shadow: 0 0 0 6px rgba(53,208,255,0);} }
+
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .stat {
+    background: linear-gradient(155deg, rgba(123,92,255,0.12), rgba(53,208,255,0.05));
+    border: 1px solid rgba(123,92,255,0.25);
+    border-radius: 14px;
+    padding: 16px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat::after {
+    content: ''; position: absolute; right: -20px; top: -20px;
+    width: 70px; height: 70px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(123,92,255,0.25), transparent 70%);
+  }
+  .stat .n { font-size: 30px; font-weight: 800; }
+  .stat .l { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #9a94c9; margin-top: 4px; }
+  .stat.normal .n { color: #35d0ff; }
+  .stat.alert .n { color: #ffb347; }
+  .stat.scan .n { color: #ff5c7c; }
+  .stat.total .n { color: #c8a2ff; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 18px;
+  }
+
+  .card {
+    background: rgba(20, 16, 45, 0.55);
+    border: 1px solid rgba(123,92,255,0.2);
+    border-radius: 16px;
+    padding: 20px;
+    backdrop-filter: blur(6px);
+  }
+  .card h2 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: .07em;
+    color: #b7b2e8; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .card h2::before { content: ''; width: 4px; height: 14px; background: linear-gradient(#7b5cff,#35d0ff); border-radius: 2px; }
+
+  /* live terminal-style feed */
+  .feed {
+    height: 340px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 12.5px;
+    line-height: 1.9;
+  }
+  .feed div { padding: 2px 0; border-bottom: 1px dashed rgba(255,255,255,0.04); white-space: nowrap; }
+  .feed .t-normal { color: #7fe0f5; }
+  .feed .t-alert { color: #ffb347; }
+  .feed .t-scan { color: #ff5c7c; font-weight: bold; }
+  .feed .meta { color: #605b8f; margin-right: 8px; }
+
+  /* alerts side panel */
+  .alert-list { max-height: 220px; overflow-y: auto; margin-bottom: 20px; }
+  .alert-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 12px; border-radius: 8px; margin-bottom: 6px;
+    font-size: 12.5px;
+    background: rgba(255,255,255,0.03);
+    border-left: 3px solid #ff5c7c;
+  }
+  .alert-item.warn { border-left-color: #ffb347; }
+  .alert-item .ip { font-family: 'Courier New', monospace; color: #e8e6ff; }
+  .alert-item .badge { font-size: 10px; padding: 2px 7px; border-radius: 5px; background: rgba(255,92,124,0.18); color: #ff5c7c; }
+  .alert-item.warn .badge { background: rgba(255,179,71,0.18); color: #ffb347; }
+  .empty { color: #605b8f; font-size: 12px; padding: 10px 0; }
+
+  #barchart-wrap { height: 190px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-icon">NG</div>
+    <div>
+      <h1>NetGuard AI</h1>
+      <p>Autoencoder-based network anomaly monitor</p>
+    </div>
+  </div>
+  <div class="live-pill"><span class="blip"></span> LIVE</div>
+</header>
+
+<div class="stat-strip">
+  <div class="stat total"><div class="n" id="s-total">0</div><div class="l">Flows Analyzed</div></div>
+  <div class="stat normal"><div class="n" id="s-normal">0</div><div class="l">Normal</div></div>
+  <div class="stat alert"><div class="n" id="s-alert">0</div><div class="l">Behavior Alerts</div></div>
+  <div class="stat scan"><div class="n" id="s-scan">0</div><div class="l">Port Scans</div></div>
+</div>
+
+<div class="layout">
+  <div class="card">
+    <h2>Live Flow Feed</h2>
+    <div class="feed" id="feed"></div>
+  </div>
+
+  <div>
+    <div class="card" style="margin-bottom: 18px;">
+      <h2>Recent Alerts</h2>
+      <div class="alert-list" id="alert-list"><div class="empty">No alerts yet…</div></div>
+    </div>
+    <div class="card">
+      <h2>Verdict Breakdown</h2>
+      <div id="barchart-wrap"><canvas id="barchart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const barCtx = document.getElementById('barchart').getContext('2d');
+const barChart = new Chart(barCtx, {
+  type: 'bar',
+  data: {
+    labels: ['Normal', 'Alert', 'Port Scan'],
+    datasets: [{
+      data: [0, 0, 0],
+      backgroundColor: ['#35d0ff', '#ffb347', '#ff5c7c'],
+      borderRadius: 6,
+      barThickness: 34,
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#b7b2e8', font: { size: 11 } }, grid: { display: false } },
+      y: { ticks: { color: '#605b8f' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+    }
+  }
+});
+
+function rowClass(tag) {
+  if (tag === 'PORT SCAN') return 't-scan';
+  if (tag === 'ALERT') return 't-alert';
+  return 't-normal';
+}
+
+async function refresh() {
+  try {
+    const [flowsRes, statsRes] = await Promise.all([
+      fetch('/api/flows'), fetch('/api/stats')
+    ]);
+    const flows = await flowsRes.json();
+    const stats = await statsRes.json();
+
+    const normal = stats.normal || 0;
+    const alertN = stats.ALERT || 0;
+    const scanN = stats["PORT SCAN"] || 0;
+    const total = normal + alertN + scanN;
+
+    document.getElementById('s-total').textContent = total;
+    document.getElementById('s-normal').textContent = normal;
+    document.getElementById('s-alert').textContent = alertN;
+    document.getElementById('s-scan').textContent = scanN;
+
+    barChart.data.datasets[0].data = [normal, alertN, scanN];
+    barChart.update('none');
+
+    const feed = document.getElementById('feed');
+    feed.innerHTML = flows.slice(0, 80).map(f => `
+      <div class="${rowClass(f.tag)}">
+        <span class="meta">${f.time}</span>${f.src} → ${f.dst} [${f.proto}] err=${f.error}  ${f.tag}
+      </div>
+    `).join('');
+
+    const alerts = flows.filter(f => f.tag !== 'normal').slice(0, 15);
+    const alertList = document.getElementById('alert-list');
+    alertList.innerHTML = alerts.length
+      ? alerts.map(f => `
+          <div class="alert-item ${f.tag === 'ALERT' ? 'warn' : ''}">
+            <span class="ip">${f.src} → ${f.dst}</span>
+            <span class="badge">${f.tag}</span>
+          </div>
+        `).join('')
+      : '<div class="empty">No alerts yet…</div>';
+  } catch (e) {
+    console.error('refresh failed', e);
+  }
+}
+
+refresh();
+setInterval(refresh, 1500);
+</script>
+
+</body>
+</html>
