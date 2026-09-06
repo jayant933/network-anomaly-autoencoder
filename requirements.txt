@@ -1,3 +1,5 @@
 scapy
 numpy
 flask
+plyer
+reportlab

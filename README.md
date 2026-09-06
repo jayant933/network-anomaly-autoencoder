@@ -3,7 +3,8 @@
 A hybrid network intrusion detection system that combines an **unsupervised
 autoencoder** (for catching unknown/zero-day behavior anomalies) with a
 **rule-based port-scan detector** (for catching classic scanning activity),
-served through a live web dashboard.
+served through a live web dashboard with desktop/email alerting and
+downloadable reports.
 
 ## How it works
 
@@ -34,17 +35,36 @@ served through a live web dashboard.
    and serves a small JSON API (`/api/flows`, `/api/stats`) that a
    single-page dashboard polls every 1.5s to show live flows, alert counts,
    and a verdict breakdown chart.
+6. **Alerting** — whenever a flow is flagged `ALERT` or `PORT SCAN`, a
+   native desktop notification fires (via `plyer`), and — if configured —
+   an email alert is sent (via `smtplib`). Both are rate-limited per
+   source IP so a single scan doesn't spam dozens of notifications.
+7. **Reporting** — the dashboard's Export buttons generate a PDF (via
+   `reportlab`) or CSV snapshot of everything detected so far, for sharing
+   or record-keeping outside the live view.
 
 ## Project structure
-
+network-anomaly-autoencoder/
+├── flow_features.py # packet capture -> flow -> feature vector
+├── autoencoder_np.py # pure NumPy autoencoder (forward/backward/Adam)
+├── train.py # trains the autoencoder on benign-only pcap
+├── live_detect.py # CLI: hybrid detection (autoencoder + port-scan rule)
+├── dashboard.py # Flask backend for the live web dashboard
+├── alerts.py # desktop (plyer) + email (smtplib) alerting, rate-limited
+├── reports.py # PDF (reportlab) / CSV report generation
+├── settings_store.py # local JSON persistence for email settings
+├── templates/
+│ └── dashboard.html # dashboard frontend (Chart.js, settings modal, polls the API)
+├── requirements.txt
+└── .gitignore
 
 ## Install
 
 ```bash
 pip install -r requirements.txt
 ```
-(Just `scapy`, `numpy`, and `flask` — no PyTorch/CUDA needed, so this is a
-light, fast install with no GPU dependency.)
+(`scapy`, `numpy`, `flask`, `plyer`, `reportlab` — no PyTorch/CUDA needed,
+so this is a light, fast install with no GPU dependency.)
 
 Live capture requires root / `CAP_NET_RAW`.
 
@@ -103,9 +123,20 @@ python3 dashboard.py --model model.npz --pcap attack_test.pcap
 sudo python3 dashboard.py --model model.npz --iface eth0
 ```
 
-Then open `http://127.0.0.1:5000` in a browser. The dashboard shows a live
-scrolling flow feed, a recent-alerts panel, and a verdict breakdown chart,
-all updating every 1.5 seconds.
+Then open `http://127.0.0.1:5000` in a browser. The dashboard shows:
+
+- A live scrolling flow feed, recent-alerts panel, and verdict breakdown
+  chart, all updating every 1.5 seconds.
+- An **⚙ Email Alerts** button that opens an in-dashboard settings panel —
+  configure SMTP host/port/credentials and a recipient address without
+  touching the CLI. Settings persist locally in `email_settings.json`
+  (gitignored — credentials never get committed).
+- **⬇ CSV** / **⬇ PDF** buttons to download a report of every flow and
+  verdict count seen in the current session.
+
+Desktop notifications fire automatically for any `ALERT`/`PORT SCAN`
+verdict (no configuration needed); email alerts additionally fire once
+configured in the settings panel. Both are rate-limited per source IP.
 
 ## Notes / limitations
 
@@ -122,6 +153,9 @@ all updating every 1.5 seconds.
   that are invisible at that level (e.g. an exploit sent over an
   otherwise normal-looking connection). It complements, rather than
   replaces, payload-inspection tools.
+- **Email credentials**: stored only in a local, gitignored JSON file —
+  never in code or pushed to GitHub. Gmail requires an App Password
+  (not your account password) with 2-Step Verification enabled.
 - This is an educational, defensive-security project — not a production
   IDS. It's meant to demonstrate how anomaly-based network detection
   systems work internally, end to end.
