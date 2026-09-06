@@ -44,6 +44,8 @@ downloadable reports.
    or record-keeping outside the live view.
 
 ## Project structure
+
+```
 network-anomaly-autoencoder/
 ├── flow_features.py # packet capture -> flow -> feature vector
 ├── autoencoder_np.py # pure NumPy autoencoder (forward/backward/Adam)
@@ -57,6 +59,7 @@ network-anomaly-autoencoder/
 │ └── dashboard.html # dashboard frontend (Chart.js, settings modal, polls the API)
 ├── requirements.txt
 └── .gitignore
+```
 
 ## Install
 
