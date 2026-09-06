@@ -4,3 +4,4 @@ venv/
 *.pcap
 model.npz
 .DS_Store
+email_settings.json

@@ -92,7 +92,6 @@
   }
   .card h2::before { content: ''; width: 4px; height: 14px; background: linear-gradient(#7b5cff,#35d0ff); border-radius: 2px; }
 
-  /* live terminal-style feed */
   .feed {
     height: 340px;
     overflow-y: auto;
@@ -106,7 +105,6 @@
   .feed .t-scan { color: #ff5c7c; font-weight: bold; }
   .feed .meta { color: #605b8f; margin-right: 8px; }
 
-  /* alerts side panel */
   .alert-list { max-height: 220px; overflow-y: auto; margin-bottom: 20px; }
   .alert-item {
     display: flex; justify-content: space-between; align-items: center;
@@ -122,6 +120,56 @@
   .empty { color: #605b8f; font-size: 12px; padding: 10px 0; }
 
   #barchart-wrap { height: 190px; }
+
+  .export-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(123,92,255,0.12);
+    border: 1px solid rgba(123,92,255,0.4);
+    color: #c8a2ff;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .export-btn:hover { background: rgba(123,92,255,0.25); }
+
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(5,5,15,0.7);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+  }
+  .modal {
+    background: #14102d;
+    border: 1px solid rgba(123,92,255,0.35);
+    border-radius: 16px;
+    padding: 26px 28px;
+    width: 420px;
+    max-width: 90vw;
+  }
+  .modal h3 { font-size: 16px; margin-bottom: 6px; }
+  .modal-sub { font-size: 12px; color: #9a94c9; margin-bottom: 16px; line-height: 1.5; }
+  .modal label { display: block; font-size: 12px; color: #b7b2e8; margin-bottom: 12px; }
+  .modal-grid label { margin-bottom: 12px; }
+  .modal input[type="text"], .modal input[type="password"], .modal input[type="number"] {
+    width: 100%;
+    margin-top: 5px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(123,92,255,0.3);
+    background: rgba(255,255,255,0.04);
+    color: #e8e6ff;
+    font-size: 13px;
+  }
+  .modal input[type="checkbox"] { margin-right: 6px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+  .btn-primary, .btn-secondary {
+    padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px;
+  }
+  .btn-primary { background: linear-gradient(135deg, #7b5cff, #35d0ff); color: #0a0a1a; font-weight: 700; }
+  .btn-secondary { background: rgba(255,255,255,0.06); color: #cdd6e0; }
+  .modal-status { font-size: 12px; margin-top: 10px; min-height: 16px; color: #35d0ff; }
 </style>
 </head>
 <body>
@@ -134,8 +182,38 @@
       <p>Autoencoder-based network anomaly monitor</p>
     </div>
   </div>
-  <div class="live-pill"><span class="blip"></span> LIVE</div>
+  <div style="display:flex; align-items:center; gap:12px;">
+    <button class="export-btn" id="settings-btn" style="cursor:pointer;">⚙ Email Alerts</button>
+    <a href="/export/csv" class="export-btn">⬇ CSV</a>
+    <a href="/export/pdf" class="export-btn">⬇ PDF</a>
+    <div class="live-pill"><span class="blip"></span> LIVE</div>
+  </div>
 </header>
+
+<!-- Email Settings Modal -->
+<div id="settings-overlay" class="modal-overlay" style="display:none;">
+  <div class="modal">
+    <h3>Email Alert Settings</h3>
+    <p class="modal-sub">Sends an email whenever an ALERT or PORT SCAN is detected. Stored locally only, never committed to git.</p>
+
+    <label><input type="checkbox" id="set-enabled"> Enable email alerts</label>
+
+    <div class="modal-grid">
+      <label>SMTP Host<input type="text" id="set-host" placeholder="smtp.gmail.com"></label>
+      <label>SMTP Port<input type="number" id="set-port" placeholder="587"></label>
+      <label>SMTP Username<input type="text" id="set-user" placeholder="you@gmail.com"></label>
+      <label>SMTP Password (App Password)<input type="password" id="set-password" placeholder="leave blank to keep existing"></label>
+      <label>From Address<input type="text" id="set-from" placeholder="you@gmail.com"></label>
+      <label>Alert To<input type="text" id="set-to" placeholder="alerts-recipient@example.com"></label>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" id="settings-cancel">Cancel</button>
+      <button class="btn-primary" id="settings-save">Save</button>
+    </div>
+    <div id="settings-status" class="modal-status"></div>
+  </div>
+</div>
 
 <div class="stat-strip">
   <div class="stat total"><div class="n" id="s-total">0</div><div class="l">Flows Analyzed</div></div>
@@ -235,6 +313,60 @@ async function refresh() {
 
 refresh();
 setInterval(refresh, 1500);
+
+// --- Email settings modal ---
+const overlay = document.getElementById('settings-overlay');
+const btnOpen = document.getElementById('settings-btn');
+const btnCancel = document.getElementById('settings-cancel');
+const btnSave = document.getElementById('settings-save');
+const statusEl = document.getElementById('settings-status');
+
+async function openSettings() {
+  overlay.style.display = 'flex';
+  statusEl.textContent = '';
+  try {
+    const res = await fetch('/api/settings');
+    const s = await res.json();
+    document.getElementById('set-enabled').checked = !!s.enabled;
+    document.getElementById('set-host').value = s.host || 'smtp.gmail.com';
+    document.getElementById('set-port').value = s.port || 587;
+    document.getElementById('set-user').value = s.user || '';
+    document.getElementById('set-password').value = '';
+    document.getElementById('set-from').value = s.from_addr || '';
+    document.getElementById('set-to').value = s.to_addr || '';
+  } catch (e) {
+    statusEl.textContent = 'Could not load current settings.';
+  }
+}
+
+btnOpen.addEventListener('click', openSettings);
+btnCancel.addEventListener('click', () => { overlay.style.display = 'none'; });
+overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
+
+btnSave.addEventListener('click', async () => {
+  const payload = {
+    enabled: document.getElementById('set-enabled').checked,
+    host: document.getElementById('set-host').value,
+    port: document.getElementById('set-port').value,
+    user: document.getElementById('set-user').value,
+    password: document.getElementById('set-password').value,
+    from_addr: document.getElementById('set-from').value,
+    to_addr: document.getElementById('set-to').value,
+  };
+  statusEl.textContent = 'Saving...';
+  try {
+    const res = await fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    statusEl.textContent = data.status === 'enabled' ? 'Saved. Email alerts are ON.' : 'Saved. Email alerts are OFF.';
+    setTimeout(() => { overlay.style.display = 'none'; }, 900);
+  } catch (e) {
+    statusEl.textContent = 'Failed to save settings.';
+  }
+});
 </script>
 
 </body>
