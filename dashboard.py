@@ -47,10 +47,13 @@ model = mean = std = alert_threshold = None
 scanner = None
 smtp_config = None
 settings_lock = threading.Lock()
+dashboard_port = 5000
 
 
 def process_flow(feat_vec, key):
     src_ip, sport, dst_ip, dport, proto = key
+    if dashboard_port in (sport, dport):
+        return
     err = score_vector(model, mean, std, feat_vec)
     is_ae_alert = err > alert_threshold
 
@@ -173,18 +176,18 @@ def export_pdf():
     )
 
 
-def start_capture(iface=None, pcap=None):
+def start_capture(iface=None, pcap=None, flow_timeout=5.0):
     if pcap:
         feats, keys = extract_flows_from_pcap(pcap)
         for f, k in zip(feats, keys):
             process_flow(f, k)
             time.sleep(0.08)
     else:
-        live_flow_stream(iface, callback=process_flow)
+        live_flow_stream(iface, flow_timeout=flow_timeout, callback=process_flow)
 
 
 def main():
-    global model, mean, std, alert_threshold, scanner, smtp_config
+    global model, mean, std, alert_threshold, scanner, smtp_config, dashboard_port
 
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", required=True)
@@ -192,6 +195,7 @@ def main():
     ap.add_argument("--pcap", help="pcap file to replay instead of live capture")
     ap.add_argument("--alert-multiplier", type=float, default=1.0)
     ap.add_argument("--port", type=int, default=5000)
+    ap.add_argument("--flow-timeout", type=float, default=5.0)
     args = ap.parse_args()
 
     if not args.iface and not args.pcap:
@@ -207,9 +211,10 @@ def main():
     model, mean, std, threshold = FlowAutoencoderNP.load(args.model)
     alert_threshold = threshold * args.alert_multiplier
     scanner = PortScanDetector()
+    dashboard_port = args.port
 
     t = threading.Thread(target=start_capture,
-                          kwargs={"iface": args.iface, "pcap": args.pcap},
+                          kwargs={"iface": args.iface, "pcap": args.pcap, "flow_timeout": args.flow_timeout},
                           daemon=True)
     t.start()
 
