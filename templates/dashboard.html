@@ -13,163 +13,133 @@
     min-height: 100vh;
     padding: 28px 34px;
   }
-
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 26px;
-  }
+  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px; flex-wrap: wrap; gap: 14px; }
   .brand { display: flex; align-items: center; gap: 12px; }
   .brand-icon {
-    width: 38px; height: 38px;
-    border-radius: 10px;
+    width: 38px; height: 38px; border-radius: 10px;
     background: linear-gradient(135deg, #7b5cff, #35d0ff);
     display: flex; align-items: center; justify-content: center;
     font-weight: 800; font-size: 16px; color: #0a0a1a;
   }
   .brand h1 { font-size: 19px; font-weight: 700; letter-spacing: .02em; }
   .brand p { font-size: 12px; color: #9a94c9; margin-top: 2px; }
+  .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
   .live-pill {
     display: flex; align-items: center; gap: 8px;
-    background: rgba(53, 208, 255, 0.08);
-    border: 1px solid rgba(53, 208, 255, 0.35);
-    padding: 6px 14px;
-    border-radius: 999px;
-    font-size: 12px;
-    color: #35d0ff;
+    background: rgba(53,208,255,0.08); border: 1px solid rgba(53,208,255,0.35);
+    padding: 6px 14px; border-radius: 999px; font-size: 12px; color: #35d0ff;
   }
-  .live-pill .blip {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: #35d0ff;
-    animation: blip 1.2s infinite;
-  }
+  .live-pill .blip { width: 7px; height: 7px; border-radius: 50%; background: #35d0ff; animation: blip 1.2s infinite; }
   @keyframes blip { 0%,100%{ box-shadow: 0 0 0 0 rgba(53,208,255,.6);} 50%{ box-shadow: 0 0 0 6px rgba(53,208,255,0);} }
 
-  .stat-strip {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-    margin-bottom: 22px;
+  .export-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(123,92,255,0.12); border: 1px solid rgba(123,92,255,0.4);
+    color: #c8a2ff; padding: 6px 14px; border-radius: 999px; font-size: 12px;
+    text-decoration: none; cursor: pointer; transition: background 0.15s;
   }
+  .export-btn:hover { background: rgba(123,92,255,0.25); }
+
+  .stat-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 22px; }
   .stat {
     background: linear-gradient(155deg, rgba(123,92,255,0.12), rgba(53,208,255,0.05));
-    border: 1px solid rgba(123,92,255,0.25);
-    border-radius: 14px;
-    padding: 16px 20px;
-    position: relative;
-    overflow: hidden;
+    border: 1px solid rgba(123,92,255,0.25); border-radius: 14px; padding: 16px 20px;
+    position: relative; overflow: hidden;
   }
   .stat::after {
-    content: ''; position: absolute; right: -20px; top: -20px;
-    width: 70px; height: 70px; border-radius: 50%;
+    content: ''; position: absolute; right: -20px; top: -20px; width: 70px; height: 70px; border-radius: 50%;
     background: radial-gradient(circle, rgba(123,92,255,0.25), transparent 70%);
   }
   .stat .n { font-size: 30px; font-weight: 800; }
   .stat .l { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #9a94c9; margin-top: 4px; }
+  .stat.total .n { color: #c8a2ff; }
   .stat.normal .n { color: #35d0ff; }
   .stat.alert .n { color: #ffb347; }
   .stat.scan .n { color: #ff5c7c; }
-  .stat.total .n { color: #c8a2ff; }
+  .stat.flood .n { color: #d16bff; }
+  .stat.trusted .n { color: #8a86b0; }
 
-  .layout {
-    display: grid;
-    grid-template-columns: 1.4fr 1fr;
-    gap: 18px;
-  }
+  .layout { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; }
+  .layout.second { margin-top: 18px; }
+  @media (max-width: 1000px) { .layout { grid-template-columns: 1fr; } }
 
   .card {
-    background: rgba(20, 16, 45, 0.55);
-    border: 1px solid rgba(123,92,255,0.2);
-    border-radius: 16px;
-    padding: 20px;
-    backdrop-filter: blur(6px);
+    background: rgba(20,16,45,0.55); border: 1px solid rgba(123,92,255,0.2);
+    border-radius: 16px; padding: 20px; backdrop-filter: blur(6px);
   }
   .card h2 {
-    font-size: 13px; text-transform: uppercase; letter-spacing: .07em;
-    color: #b7b2e8; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    font-size: 13px; text-transform: uppercase; letter-spacing: .07em; color: #b7b2e8;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
   }
   .card h2::before { content: ''; width: 4px; height: 14px; background: linear-gradient(#7b5cff,#35d0ff); border-radius: 2px; }
+  .card h2.sub { margin-top: 18px; }
 
-  .feed {
-    height: 340px;
-    overflow-y: auto;
-    font-family: 'Courier New', monospace;
-    font-size: 12.5px;
-    line-height: 1.9;
-  }
+  .feed { height: 340px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 12.5px; line-height: 1.9; }
   .feed div { padding: 2px 0; border-bottom: 1px dashed rgba(255,255,255,0.04); white-space: nowrap; }
   .feed .t-normal { color: #7fe0f5; }
   .feed .t-alert { color: #ffb347; }
   .feed .t-scan { color: #ff5c7c; font-weight: bold; }
+  .feed .t-flood { color: #d16bff; font-weight: bold; }
+  .feed .t-trusted { color: #6f6b96; }
   .feed .meta { color: #605b8f; margin-right: 8px; }
 
   .alert-list { max-height: 220px; overflow-y: auto; margin-bottom: 20px; }
   .alert-item {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 9px 12px; border-radius: 8px; margin-bottom: 6px;
-    font-size: 12.5px;
-    background: rgba(255,255,255,0.03);
-    border-left: 3px solid #ff5c7c;
+    padding: 9px 12px; border-radius: 8px; margin-bottom: 6px; font-size: 12.5px;
+    background: rgba(255,255,255,0.03); border-left: 3px solid #ff5c7c;
   }
   .alert-item.warn { border-left-color: #ffb347; }
+  .alert-item.flood { border-left-color: #d16bff; }
   .alert-item .ip { font-family: 'Courier New', monospace; color: #e8e6ff; }
   .alert-item .badge { font-size: 10px; padding: 2px 7px; border-radius: 5px; background: rgba(255,92,124,0.18); color: #ff5c7c; }
   .alert-item.warn .badge { background: rgba(255,179,71,0.18); color: #ffb347; }
+  .alert-item.flood .badge { background: rgba(209,107,255,0.18); color: #d16bff; }
   .empty { color: #605b8f; font-size: 12px; padding: 10px 0; }
 
   #barchart-wrap { height: 190px; }
+  #trend-wrap { height: 250px; }
 
-  .export-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(123,92,255,0.12);
-    border: 1px solid rgba(123,92,255,0.4);
-    color: #c8a2ff;
-    padding: 6px 14px;
-    border-radius: 999px;
-    font-size: 12px;
-    text-decoration: none;
-    transition: background 0.15s;
+  .top-item {
+    display: flex; align-items: center; gap: 10px; padding: 8px 10px; margin-bottom: 6px;
+    border-radius: 8px; background: rgba(255,255,255,0.03); font-size: 12.5px;
   }
-  .export-btn:hover { background: rgba(123,92,255,0.25); }
+  .top-item .ip { font-family: 'Courier New', monospace; min-width: 110px; }
+  .top-item .types { flex: 1; color: #9a94c9; font-size: 11.5px; }
+  .top-item .cnt { font-weight: 700; color: #ffb347; }
+  .top-item .cnt.blue { color: #35d0ff; }
+  .trust-btn {
+    background: rgba(53,208,255,0.1); border: 1px solid rgba(53,208,255,0.35); color: #35d0ff;
+    border-radius: 6px; padding: 2px 9px; font-size: 11px; cursor: pointer;
+  }
+  .trust-btn:hover { background: rgba(53,208,255,0.22); }
 
   .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(5,5,15,0.7);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 100;
+    position: fixed; inset: 0; background: rgba(5,5,15,0.7);
+    display: flex; align-items: center; justify-content: center; z-index: 100;
   }
   .modal {
-    background: #14102d;
-    border: 1px solid rgba(123,92,255,0.35);
-    border-radius: 16px;
-    padding: 26px 28px;
-    width: 420px;
-    max-width: 90vw;
+    background: #14102d; border: 1px solid rgba(123,92,255,0.35); border-radius: 16px;
+    padding: 26px 28px; width: 420px; max-width: 90vw; max-height: 90vh; overflow-y: auto;
   }
   .modal h3 { font-size: 16px; margin-bottom: 6px; }
   .modal-sub { font-size: 12px; color: #9a94c9; margin-bottom: 16px; line-height: 1.5; }
+  .modal-warn { font-size: 11.5px; color: #ffb347; margin-bottom: 12px; line-height: 1.5; }
   .modal label { display: block; font-size: 12px; color: #b7b2e8; margin-bottom: 12px; }
-  .modal-grid label { margin-bottom: 12px; }
-  .modal input[type="text"], .modal input[type="password"], .modal input[type="number"] {
-    width: 100%;
-    margin-top: 5px;
-    padding: 8px 10px;
-    border-radius: 8px;
-    border: 1px solid rgba(123,92,255,0.3);
-    background: rgba(255,255,255,0.04);
-    color: #e8e6ff;
-    font-size: 13px;
+  .modal input[type="text"], .modal input[type="password"], .modal input[type="number"], .modal textarea {
+    width: 100%; margin-top: 5px; padding: 8px 10px; border-radius: 8px;
+    border: 1px solid rgba(123,92,255,0.3); background: rgba(255,255,255,0.04);
+    color: #e8e6ff; font-size: 13px; font-family: inherit;
   }
+  .modal textarea { font-family: 'Courier New', monospace; resize: vertical; }
   .modal input[type="checkbox"] { margin-right: 6px; }
   .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
-  .btn-primary, .btn-secondary {
-    padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px;
-  }
+  .btn-primary, .btn-secondary { padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; }
   .btn-primary { background: linear-gradient(135deg, #7b5cff, #35d0ff); color: #0a0a1a; font-weight: 700; }
   .btn-secondary { background: rgba(255,255,255,0.06); color: #cdd6e0; }
   .modal-status { font-size: 12px; margin-top: 10px; min-height: 16px; color: #35d0ff; }
+  .modal-status.err { color: #ff5c7c; }
 </style>
 </head>
 <body>
@@ -182,8 +152,9 @@
       <p>Autoencoder-based network anomaly detection</p>
     </div>
   </div>
-  <div style="display:flex; align-items:center; gap:12px;">
-    <button class="export-btn" id="settings-btn" style="cursor:pointer;">⚙ Email Alerts</button>
+  <div class="header-actions">
+    <button class="export-btn" id="wl-btn">🛡 Trusted IPs</button>
+    <button class="export-btn" id="settings-btn">⚙ Email Alerts</button>
     <a href="/export/csv" class="export-btn">⬇ CSV</a>
     <a href="/export/pdf" class="export-btn">⬇ PDF</a>
     <div class="live-pill"><span class="blip"></span> LIVE</div>
@@ -194,10 +165,8 @@
 <div id="settings-overlay" class="modal-overlay" style="display:none;">
   <div class="modal">
     <h3>Email Alert Settings</h3>
-    <p class="modal-sub">Sends an email whenever an ALERT or PORT SCAN is detected. Stored locally only, never committed to git.</p>
-
+    <p class="modal-sub">Sends an email whenever an alert, port scan or SYN flood is detected. Stored locally only, never committed to git.</p>
     <label><input type="checkbox" id="set-enabled"> Enable email alerts</label>
-
     <div class="modal-grid">
       <label>SMTP Host<input type="text" id="set-host" placeholder="smtp.gmail.com"></label>
       <label>SMTP Port<input type="number" id="set-port" placeholder="587"></label>
@@ -206,7 +175,6 @@
       <label>From Address<input type="text" id="set-from" placeholder="you@gmail.com"></label>
       <label>Alert To<input type="text" id="set-to" placeholder="alerts-recipient@example.com"></label>
     </div>
-
     <div class="modal-actions">
       <button class="btn-secondary" id="settings-cancel">Cancel</button>
       <button class="btn-primary" id="settings-save">Save</button>
@@ -215,11 +183,30 @@
   </div>
 </div>
 
+<!-- Trusted IPs Modal -->
+<div id="wl-overlay" class="modal-overlay" style="display:none;">
+  <div class="modal">
+    <h3>Trusted IPs</h3>
+    <p class="modal-sub">One IP or CIDR range per line (e.g. <code>192.168.1.10</code> or <code>10.0.0.0/24</code>). Traffic <b>initiated by</b> these hosts is marked "trusted" and never raises alerts.</p>
+    <p class="modal-warn">Tip: don't trust 127.0.0.1 while testing with nmap on localhost, it will hide your own test attacks.</p>
+    <label>Trusted hosts
+      <textarea id="wl-text" rows="8" placeholder="192.168.1.10&#10;10.0.0.0/24"></textarea>
+    </label>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="wl-cancel">Cancel</button>
+      <button class="btn-primary" id="wl-save">Save</button>
+    </div>
+    <div id="wl-status" class="modal-status"></div>
+  </div>
+</div>
+
 <div class="stat-strip">
   <div class="stat total"><div class="n" id="s-total">0</div><div class="l">Flows Analyzed</div></div>
   <div class="stat normal"><div class="n" id="s-normal">0</div><div class="l">Normal</div></div>
   <div class="stat alert"><div class="n" id="s-alert">0</div><div class="l">Behavior Alerts</div></div>
   <div class="stat scan"><div class="n" id="s-scan">0</div><div class="l">Port Scans</div></div>
+  <div class="stat flood"><div class="n" id="s-flood">0</div><div class="l">SYN Floods</div></div>
+  <div class="stat trusted"><div class="n" id="s-trusted">0</div><div class="l">Trusted (skipped)</div></div>
 </div>
 
 <div class="layout">
@@ -227,7 +214,6 @@
     <h2>Live Flow Feed</h2>
     <div class="feed" id="feed"></div>
   </div>
-
   <div>
     <div class="card" style="margin-bottom: 18px;">
       <h2>Recent Alerts</h2>
@@ -240,132 +226,227 @@
   </div>
 </div>
 
+<div class="layout second">
+  <div class="card">
+    <h2>Alerts Over Time (last 5 min, 10s buckets)</h2>
+    <div id="trend-wrap"><canvas id="trendchart"></canvas></div>
+  </div>
+  <div class="card">
+    <h2>Top Attackers</h2>
+    <div id="top-attackers"><div class="empty">No attackers yet…</div></div>
+    <h2 class="sub">Top Talkers</h2>
+    <div id="top-talkers"><div class="empty">No traffic yet…</div></div>
+  </div>
+</div>
+
 <script>
-const barCtx = document.getElementById('barchart').getContext('2d');
-const barChart = new Chart(barCtx, {
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtBytes = (n) => n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : n >= 1024 ? (n / 1024).toFixed(1) + ' KB' : n + ' B';
+
+const COLORS = { normal: '#35d0ff', alert: '#ffb347', scan: '#ff5c7c', flood: '#d16bff', trusted: '#8a86b0' };
+
+const barChart = new Chart($('barchart').getContext('2d'), {
   type: 'bar',
   data: {
-    labels: ['Normal', 'Alert', 'Port Scan'],
+    labels: ['Normal', 'Alert', 'Port Scan', 'SYN Flood', 'Trusted'],
     datasets: [{
-      data: [0, 0, 0],
-      backgroundColor: ['#35d0ff', '#ffb347', '#ff5c7c'],
-      borderRadius: 6,
-      barThickness: 34,
+      data: [0, 0, 0, 0, 0],
+      backgroundColor: [COLORS.normal, COLORS.alert, COLORS.scan, COLORS.flood, COLORS.trusted],
+      borderRadius: 6, barThickness: 30,
     }]
   },
   options: {
     plugins: { legend: { display: false } },
     scales: {
       x: { ticks: { color: '#b7b2e8', font: { size: 11 } }, grid: { display: false } },
-      y: { ticks: { color: '#605b8f' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+      y: { ticks: { color: '#605b8f', precision: 0 }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }
+    }
+  }
+});
+
+const trendChart = new Chart($('trendchart').getContext('2d'), {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [
+      { label: 'Alert', data: [], borderColor: COLORS.alert, backgroundColor: COLORS.alert + '22', tension: .3, fill: true, pointRadius: 0 },
+      { label: 'Port Scan', data: [], borderColor: COLORS.scan, backgroundColor: COLORS.scan + '22', tension: .3, fill: true, pointRadius: 0 },
+      { label: 'SYN Flood', data: [], borderColor: COLORS.flood, backgroundColor: COLORS.flood + '22', tension: .3, fill: true, pointRadius: 0 },
+    ]
+  },
+  options: {
+    maintainAspectRatio: false,
+    animation: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: { legend: { labels: { color: '#cdd6e0', font: { size: 11 } } } },
+    scales: {
+      x: { ticks: { color: '#605b8f', maxTicksLimit: 6, autoSkip: true }, grid: { display: false } },
+      y: { ticks: { color: '#605b8f', precision: 0 }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }
     }
   }
 });
 
 function rowClass(tag) {
+  if (tag === 'SYN FLOOD') return 't-flood';
   if (tag === 'PORT SCAN') return 't-scan';
   if (tag === 'ALERT') return 't-alert';
+  if (tag === 'trusted') return 't-trusted';
   return 't-normal';
 }
+function alertClass(tag) {
+  if (tag === 'SYN FLOOD') return 'flood';
+  if (tag === 'ALERT') return 'warn';
+  return '';
+}
+
+async function getJSON(url) { return (await fetch(url)).json(); }
 
 async function refresh() {
   try {
-    const [flowsRes, statsRes] = await Promise.all([
-      fetch('/api/flows'), fetch('/api/stats')
+    const [flows, stats, trend, top] = await Promise.all([
+      getJSON('/api/flows'), getJSON('/api/stats'), getJSON('/api/trend'), getJSON('/api/top')
     ]);
-    const flows = await flowsRes.json();
-    const stats = await statsRes.json();
 
-    const normal = stats.normal || 0;
-    const alertN = stats.ALERT || 0;
-    const scanN = stats["PORT SCAN"] || 0;
-    const total = normal + alertN + scanN;
+    const normal = stats.normal || 0, alertN = stats.ALERT || 0, scanN = stats['PORT SCAN'] || 0;
+    const floodN = stats['SYN FLOOD'] || 0, trustedN = stats.trusted || 0;
+    $('s-total').textContent = normal + alertN + scanN + floodN + trustedN;
+    $('s-normal').textContent = normal;
+    $('s-alert').textContent = alertN;
+    $('s-scan').textContent = scanN;
+    $('s-flood').textContent = floodN;
+    $('s-trusted').textContent = trustedN;
 
-    document.getElementById('s-total').textContent = total;
-    document.getElementById('s-normal').textContent = normal;
-    document.getElementById('s-alert').textContent = alertN;
-    document.getElementById('s-scan').textContent = scanN;
-
-    barChart.data.datasets[0].data = [normal, alertN, scanN];
+    barChart.data.datasets[0].data = [normal, alertN, scanN, floodN, trustedN];
     barChart.update('none');
 
-    const feed = document.getElementById('feed');
-    feed.innerHTML = flows.slice(0, 80).map(f => `
-      <div class="${rowClass(f.tag)}">
-        <span class="meta">${f.time}</span>${f.src} → ${f.dst} [${f.proto}] err=${f.error}  ${f.tag}
-      </div>
-    `).join('');
+    trendChart.data.labels = trend.labels;
+    trendChart.data.datasets[0].data = trend.series['ALERT'];
+    trendChart.data.datasets[1].data = trend.series['PORT SCAN'];
+    trendChart.data.datasets[2].data = trend.series['SYN FLOOD'];
+    trendChart.update('none');
 
-    const alerts = flows.filter(f => f.tag !== 'normal').slice(0, 15);
-    const alertList = document.getElementById('alert-list');
-    alertList.innerHTML = alerts.length
-      ? alerts.map(f => `
-          <div class="alert-item ${f.tag === 'ALERT' ? 'warn' : ''}">
-            <span class="ip">${f.src} → ${f.dst}</span>
-            <span class="badge">${f.tag}</span>
-          </div>
-        `).join('')
+    $('feed').innerHTML = flows.slice(0, 80).map(f => `
+      <div class="${rowClass(f.tag)}">
+        <span class="meta">${esc(f.time)}</span>${esc(f.src)} → ${esc(f.dst)} [${esc(f.proto)}] err=${f.error}  ${esc(f.tag)}
+      </div>`).join('');
+
+    const flagged = flows.filter(f => f.tag !== 'normal' && f.tag !== 'trusted').slice(0, 15);
+    $('alert-list').innerHTML = flagged.length
+      ? flagged.map(f => `
+          <div class="alert-item ${alertClass(f.tag)}">
+            <span class="ip">${esc(f.src)} → ${esc(f.dst)}</span>
+            <span class="badge">${esc(f.tag)}</span>
+          </div>`).join('')
       : '<div class="empty">No alerts yet…</div>';
+
+    $('top-attackers').innerHTML = top.attackers.length
+      ? top.attackers.map(a => `
+          <div class="top-item">
+            <span class="ip">${esc(a.ip)}</span>
+            <span class="types">${Object.entries(a.types).map(([t, n]) => esc(t) + ' ×' + n).join(' · ')}</span>
+            <span class="cnt">${a.count}</span>
+            <button class="trust-btn" data-ip="${esc(a.ip)}">trust</button>
+          </div>`).join('')
+      : '<div class="empty">No attackers yet…</div>';
+
+    $('top-talkers').innerHTML = top.talkers.length
+      ? top.talkers.map(t => `
+          <div class="top-item">
+            <span class="ip">${esc(t.ip)}</span>
+            <span class="types">${t.flows} flows</span>
+            <span class="cnt blue">${fmtBytes(t.bytes)}</span>
+          </div>`).join('')
+      : '<div class="empty">No traffic yet…</div>';
   } catch (e) {
     console.error('refresh failed', e);
   }
 }
-
 refresh();
 setInterval(refresh, 1500);
 
-// --- Email settings modal ---
-const overlay = document.getElementById('settings-overlay');
-const btnOpen = document.getElementById('settings-btn');
-const btnCancel = document.getElementById('settings-cancel');
-const btnSave = document.getElementById('settings-save');
-const statusEl = document.getElementById('settings-status');
+// ---------- Trusted IPs ----------
+const wlOverlay = $('wl-overlay'), wlStatus = $('wl-status');
+
+async function openWhitelist() {
+  wlOverlay.style.display = 'flex';
+  wlStatus.textContent = ''; wlStatus.className = 'modal-status';
+  try {
+    const d = await getJSON('/api/whitelist');
+    $('wl-text').value = d.entries.join('\n');
+  } catch (e) { wlStatus.textContent = 'Could not load trusted IPs.'; wlStatus.className = 'modal-status err'; }
+}
+async function saveWhitelist(entries) {
+  const res = await fetch('/api/whitelist', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ entries }),
+  });
+  return { ok: res.ok, data: await res.json() };
+}
+
+$('wl-btn').addEventListener('click', openWhitelist);
+$('wl-cancel').addEventListener('click', () => { wlOverlay.style.display = 'none'; });
+wlOverlay.addEventListener('click', (e) => { if (e.target === wlOverlay) wlOverlay.style.display = 'none'; });
+$('wl-save').addEventListener('click', async () => {
+  const entries = $('wl-text').value.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+  wlStatus.className = 'modal-status'; wlStatus.textContent = 'Saving...';
+  try {
+    const { ok, data } = await saveWhitelist(entries);
+    if (!ok) { wlStatus.className = 'modal-status err'; wlStatus.textContent = data.error || 'Invalid entry.'; return; }
+    $('wl-text').value = data.entries.join('\n');
+    wlStatus.textContent = 'Saved. ' + data.entries.length + ' trusted entr' + (data.entries.length === 1 ? 'y' : 'ies') + '.';
+    refresh();
+    setTimeout(() => { wlOverlay.style.display = 'none'; }, 900);
+  } catch (e) { wlStatus.className = 'modal-status err'; wlStatus.textContent = 'Failed to save.'; }
+});
+
+// "trust" button on the Top Attackers list (event delegation, the list re-renders every 1.5s)
+$('top-attackers').addEventListener('click', async (e) => {
+  const btn = e.target.closest('.trust-btn');
+  if (!btn) return;
+  const ip = btn.dataset.ip;
+  if (!confirm('Trust ' + ip + '? Traffic it initiates will no longer raise alerts.')) return;
+  const current = (await getJSON('/api/whitelist')).entries;
+  if (!current.includes(ip)) await saveWhitelist(current.concat(ip));
+  refresh();
+});
+
+// ---------- Email settings ----------
+const overlay = $('settings-overlay'), statusEl = $('settings-status');
 
 async function openSettings() {
   overlay.style.display = 'flex';
   statusEl.textContent = '';
   try {
-    const res = await fetch('/api/settings');
-    const s = await res.json();
-    document.getElementById('set-enabled').checked = !!s.enabled;
-    document.getElementById('set-host').value = s.host || 'smtp.gmail.com';
-    document.getElementById('set-port').value = s.port || 587;
-    document.getElementById('set-user').value = s.user || '';
-    document.getElementById('set-password').value = '';
-    document.getElementById('set-from').value = s.from_addr || '';
-    document.getElementById('set-to').value = s.to_addr || '';
-  } catch (e) {
-    statusEl.textContent = 'Could not load current settings.';
-  }
+    const s = await getJSON('/api/settings');
+    $('set-enabled').checked = !!s.enabled;
+    $('set-host').value = s.host || 'smtp.gmail.com';
+    $('set-port').value = s.port || 587;
+    $('set-user').value = s.user || '';
+    $('set-password').value = '';
+    $('set-from').value = s.from_addr || '';
+    $('set-to').value = s.to_addr || '';
+  } catch (e) { statusEl.textContent = 'Could not load current settings.'; }
 }
-
-btnOpen.addEventListener('click', openSettings);
-btnCancel.addEventListener('click', () => { overlay.style.display = 'none'; });
+$('settings-btn').addEventListener('click', openSettings);
+$('settings-cancel').addEventListener('click', () => { overlay.style.display = 'none'; });
 overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
-
-btnSave.addEventListener('click', async () => {
+$('settings-save').addEventListener('click', async () => {
   const payload = {
-    enabled: document.getElementById('set-enabled').checked,
-    host: document.getElementById('set-host').value,
-    port: document.getElementById('set-port').value,
-    user: document.getElementById('set-user').value,
-    password: document.getElementById('set-password').value,
-    from_addr: document.getElementById('set-from').value,
-    to_addr: document.getElementById('set-to').value,
+    enabled: $('set-enabled').checked,
+    host: $('set-host').value, port: $('set-port').value,
+    user: $('set-user').value, password: $('set-password').value,
+    from_addr: $('set-from').value, to_addr: $('set-to').value,
   };
   statusEl.textContent = 'Saving...';
   try {
     const res = await fetch('/api/settings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
     });
     const data = await res.json();
     statusEl.textContent = data.status === 'enabled' ? 'Saved. Email alerts are ON.' : 'Saved. Email alerts are OFF.';
     setTimeout(() => { overlay.style.display = 'none'; }, 900);
-  } catch (e) {
-    statusEl.textContent = 'Failed to save settings.';
-  }
+  } catch (e) { statusEl.textContent = 'Failed to save settings.'; }
 });
 </script>
 
